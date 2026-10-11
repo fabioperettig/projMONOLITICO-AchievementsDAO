@@ -123,12 +123,15 @@ public class User implements Persistence, Serializable {
     @Setter(AccessLevel.NONE)
     private Long id;
 
+    @NotBlank(message = "Digite seu apelido.")
     @Column(name = "USUARIO", nullable = false, unique = true)
     private String apelido;
 
     @Column(name = "NIVEL", nullable = false)
     private Integer nivel = 1;
 
+    @NotBlank(message = "Digite seu email.")
+    @Email(message = "Informe um email válido.")
     @Column(name = "EMAIL", nullable = false, unique = true)
     private String email;
 
@@ -218,110 +221,102 @@ XHTML que acessam os controllers por expressões como `#{userController.create}`
 <details><summary>xhtml da sessão de Usuário</summary>
 
 ````xhtml
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
+      xmlns:p="primefaces"
       lang="pt-BR">
 
 <h:head>
     <title>Cadastro de usuários</title>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 </h:head>
 
 <h:body>
     <h1>Usuários</h1>
-    <h:link outcome="achievements" value="Ir para conquistas"/>
-    <h:messages id="messages"/>
+    <p:button outcome="achievements" value="Conquistas" icon="pi pi-trophy"/>
+    <p:messages id="messages" showDetail="false" closable="true"/>
 
     <!-- FORMULÁRIO -->
     <h:form id="userForm">
-        <h:panelGrid columns="2">
+        <p:panel header="#{userController.editing ? 'Editar usuário' : 'Cadastrar usuário'}">
+            <p:panelGrid columns="2" layout="tabular">
 
-            <h:outputLabel for="apelido" value="Apelido:"/>
-            <h:inputText id="apelido"
-                         label="Apelido"
-                         value="#{userController.user.apelido}"
-                         required="true"
-                         requiredMessage="Informe o apelido."/>
+                <p:outputLabel for="apelido" value="Apelido:"/>
+                <p:inputText id="apelido"
+                             label="Apelido"
+                             value="#{userController.user.apelido}"
+                             required="true"
+                             requiredMessage="Informe o apelido."/>
 
-            <h:outputLabel for="email" value="E-mail:"/>
-            <h:inputText id="email"
-                         label="E-mail"
-                         value="#{userController.user.email}"
-                         required="true"
-                         requiredMessage="Informe o e-mail."/>
+                <p:outputLabel for="email" value="E-mail:"/>
+                <p:inputText id="email"
+                             label="E-mail"
+                             value="#{userController.user.email}"
+                             required="true"
+                             requiredMessage="Informe o e-mail."/>
 
-        </h:panelGrid>
+            </p:panelGrid>
+            <p:divider/>
 
-        <h:commandButton value="Cadastrar"
-                         action="#{userController.create}"
-                         rendered="#{not userController.editing}"/>
+            <p:commandButton value="Cadastrar" icon="pi pi-plus"
+                             action="#{userController.create}"
+                             rendered="#{not userController.editing}" ajax="false"/>
 
-        <h:commandButton value="Salvar alteração"
-                         action="#{userController.update}"
-                         rendered="#{userController.editing}"/>
+            <p:commandButton value="Salvar alteração" icon="pi pi-check"
+                             action="#{userController.update}"
+                             rendered="#{userController.editing}" ajax="false"/>
 
-        <h:commandButton value="Cancelar"
-                         action="#{userController.cancel}">
-            <f:ajax execute="@this"
-                    render="@form :messages"
-                    resetValues="true"/>
-        </h:commandButton>
+            <p:commandButton value="Cancelar" icon="pi pi-times" styleClass="ui-button-secondary"
+                             action="#{userController.cancel}" process="@this" update="@form :messages" resetValues="true"/>
+        </p:panel>
     </h:form>
 
     <h2>Usuários cadastrados</h2>
 
     <!-- PAINEL PRINCIPAL -->
     <h:form id="usersTableForm">
-        <h:dataTable value="#{userController.users}"
+        <p:dataTable value="#{userController.users}"
                      var="item"
-                     border="1">
+                     paginator="true" rows="10"
+                     paginatorPosition="bottom" paginatorAlwaysVisible="false"
+                     reflow="true"
+                     emptyMessage="Nenhum usuário cadastrado.">
 
-            <h:column>
-                <f:facet name="header">ID</f:facet>
+            <p:column headerText="ID">
                 <h:outputText value="#{item.id}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Apelido</f:facet>
+            <p:column headerText="Apelido">
                 <h:outputText value="#{item.apelido}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">E-mail</f:facet>
+            <p:column headerText="E-mail">
                 <h:outputText value="#{item.email}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Nível</f:facet>
-                <h:outputText value="#{item.nivel}"/>
-            </h:column>
+            <p:column headerText="Nível">
+                <p:tag value="Nível #{item.nivel}" severity="success"/>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Ações</f:facet>
+            <p:column headerText="Ações">
 
-                <h:commandButton value="Editar"
-                                 action="#{userController.edit(item)}">
-                    <f:ajax execute="@this"
-                            render=":userForm :messages"
-                            resetValues="true"/>
-                </h:commandButton>
+                <p:commandButton value="Editar" icon="pi pi-pencil" styleClass="ui-button-secondary"
+                                 action="#{userController.edit(item)}" process="@this" update=":userForm :messages" resetValues="true"/>
 
-                <h:commandButton value="Excluir"
-                                 action="#{userController.prepareDelete(item)}"/>
-            </h:column>
+                <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger"
+                                 action="#{userController.prepareDelete(item)}" ajax="false"/>
+            </p:column>
 
-        </h:dataTable>
+        </p:dataTable>
     </h:form>
 
     <!-- CONQUISTAS ENCONTRADAS NO DELETE -->
     <h:form id="deleteConfirmationForm">
-        <h:panelGroup layout="block"
-                      rendered="#{not empty userController.userToDelete}">
-
-            <h3>Confirmar exclusão</h3>
+        <p:panel header="Confirmar exclusão"
+                 rendered="#{not empty userController.userToDelete}">
 
             <p>
                 Excluir
@@ -330,13 +325,13 @@ XHTML que acessam os controllers por expressões como `#{userController.create}`
                 Deseja continuar?
             </p>
 
-            <h:commandButton value="Confirmar exclusão"
-                             action="#{userController.confirmDelete}"/>
+            <p:commandButton value="Confirmar exclusão" icon="pi pi-trash" styleClass="ui-button-danger"
+                             action="#{userController.confirmDelete}" ajax="false"/>
 
-            <h:commandButton value="Cancelar"
-                             action="#{userController.cancelDelete}"/>
+            <p:commandButton value="Cancelar" icon="pi pi-times" styleClass="ui-button-secondary"
+                             action="#{userController.cancelDelete}" ajax="false"/>
 
-        </h:panelGroup>
+        </p:panel>
     </h:form>
 </h:body>
 
@@ -368,7 +363,7 @@ WildFly, facilitando a reprodução do ambiente sem instalar esses serviços na 
 | Maven | Compilar o código e gerar o pacote da aplicação |
 | Docker Compose | Configurar e administrar os serviços do projeto, como PostgreSQL e WildFly |
 
-### Comandos para build e deploy do projeto
+### Comandos para build e deploy do projeto 👇
 
 ```bash
 mvn clean package
@@ -386,6 +381,205 @@ Administra os serviços definidos no [compose.yaml](compose.yaml), criando uma c
 docker compose exec wildfly /opt/jboss/wildfly/bin/jboss-cli.sh --connect --command="deploy /tmp/conquistas.war --force"
 ```
 Inicia a instalação via `WildFly` e faz o `Deploy` da aplicação.
+
+## 👽✅ Testes e Arquillian
+
+Além do `JUnit`, os testes utiliza o `Arquillian` para criar uma ponte entre os testes e o WildFly, cobrindo o CRUD
+de usuários e de conquistas, testa o comportamento de emails e apelidos duplicados e exclusão em cascata, tudo em
+um banco PostgreSQL próprio para testes.
+
+<details><summary>Classe testes User</summary>
+
+```java
+package domain;
+
+imports {...}
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(ArquillianExtension.class)
+public class UserServicesIT {
+
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private AchievementService achievementService;
+
+    private final List<Long> listaUsers = new ArrayList<>();
+    private final List<Long> listaAchievements = new ArrayList<>();
+
+    @Deployment
+    public static WebArchive checkDeployTest() {
+        return ShrinkWrap.create(WebArchive.class, "conquistas-test.war")
+                .addPackages(
+                        true,
+                        "com.fabioperettig.domain",
+                        "com.fabioperettig.dao",
+                        "com.fabioperettig.service"
+                )
+                .addAsResource("META-INF/persistence.xml")
+                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+    }
+
+    @AfterEach
+    public void limparDados() {
+        /// Apagar as conquistas antes de apagar os usuários (FK)
+        for (Long id : listaAchievements) {
+            Achievement conquista = achievementService.read(id);
+
+            if (conquista != null) {
+                achievementService.delete(conquista);
+            }
+        }
+
+        for (Long id : listaUsers) {
+            User usuario = userService.read(id);
+
+            if (usuario != null) {
+                userService.delete(usuario);
+            }
+        }
+
+        listaAchievements.clear();
+        listaUsers.clear();
+    }
+
+    @Test
+    public void userCrudTest() {
+        User user = createUser(novoUser());
+
+        /// não é mais necessário usar Assertion.assert...
+        assertNotNull(user.getId());
+
+        User uReslt = userService.read(user.getId());
+
+        assertNotNull(uReslt);
+        assertEquals(user.getApelido(), uReslt.getApelido());
+        assertEquals(user.getEmail(), uReslt.getEmail());
+        assertEquals(Integer.valueOf(1), uReslt.getNivel());
+
+        uReslt.setApelido("alterado-" + UUID.randomUUID());
+        uReslt.setNivel(2);
+
+        userService.update(uReslt);
+
+        User userUpdate = userService.read(user.getId());
+
+        assertEquals(uReslt.getApelido(), userUpdate.getApelido());
+        assertEquals(Integer.valueOf(2), userUpdate.getNivel());
+        assertTrue(userService.findAll().stream().anyMatch(u -> user.getId().equals(u.getId())));
+
+        userService.delete(userUpdate);
+
+        assertNull(userService.read(user.getId()));
+    }
+
+    @Test
+    public void emailDuplicadoTest() {
+        User user = createUser(novoUser());
+
+        User user2 = novoUser();
+        user2.setEmail(user.getEmail());
+
+        assertRegraRejeitada(() -> createUser(user2), "Já existe um usuário com este e-mail.");
+
+        /// teste na sessão UPDATE usuário
+        User user3 = createUser(novoUser());
+        user3.setEmail(user.getEmail());
+
+        assertRegraRejeitada(() -> userService.update(user3), "Já existe um usuário com este e-mail.");
+        assertEquals(user.getEmail(), userService.read(user.getId()).getEmail());
+    }
+
+    @Test
+    public void apelidoDuplicadoTest() {
+        User original = createUser(novoUser());
+
+        User user2 = novoUser();
+        user2.setApelido(original.getApelido());
+
+        assertRegraRejeitada(() -> createUser(user2), "Já existe um usuário com este apelido.");
+
+        User user3 = createUser(novoUser());
+        user3.setApelido(original.getApelido());
+
+        assertRegraRejeitada(() -> userService.update(user3), "Já existe um usuário com este apelido.");
+    }
+
+    @Test
+    public void deleteCascadeTest() {
+        User user = createUser(novoUser());
+
+        Achievement achievement = createAchievement(novoAchievement(user));
+
+        assertTrue(userService.possuiAchievements(user.getId()));
+
+        userService.delete(user);
+
+        assertNull(userService.read(user.getId()));
+        assertNull(achievementService.read(achievement.getId()));
+    }
+
+
+    private User novoUser() {
+        String identificador = UUID.randomUUID().toString();
+
+        User user = new User();
+        user.setApelido("teste-" + identificador);
+        user.setEmail("teste-" + identificador + "@example.com");
+
+        return user;
+    }
+
+    private User createUser(User user) {
+        User cadastrado = userService.create(user);
+
+        listaUsers.add(cadastrado.getId());
+
+        return cadastrado;
+    }
+
+    private Achievement novoAchievement(User user) {
+        Achievement achievement = new Achievement();
+        achievement.setTitulo("Primeiro teste de integração");
+        achievement.setDescricao("Executar os services dentro do WildFly.");
+        achievement.setDataConquista(LocalDate.of(2026, 10, 11));
+        achievement.setPrivado(false);
+        achievement.setUser(user);
+
+        return achievement;
+    }
+
+    private Achievement createAchievement(Achievement achievement) {
+        Achievement cadastrada = achievementService.create(achievement);
+
+        listaAchievements.add(cadastrada.getId());
+
+        return cadastrada;
+    }
+
+    private void assertRegraRejeitada(Executable operacao, String mensagemEsperada) {
+        EJBException erro = assertThrows(EJBException.class, operacao);
+
+        /// O WildFly envolve a exceção do service em uma EJBException.
+        Throwable causa = erro;
+
+        while (causa != null
+                && !(causa instanceof IllegalArgumentException)) {
+            causa = causa.getCause();
+        }
+
+        assertNotNull(
+                causa,
+                "Esperávamos uma IllegalArgumentException na cadeia de causas."
+        );
+
+        assertEquals(mensagemEsperada, causa.getMessage());
+    }
+}
+```
+</details>
 
 -----
 
