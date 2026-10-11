@@ -14,6 +14,7 @@ target/
 *.ipr
 *.env
 project_idea.md
+GUIA-DEPLOY.md
 
 ### Eclipse ###
 .apt_generated

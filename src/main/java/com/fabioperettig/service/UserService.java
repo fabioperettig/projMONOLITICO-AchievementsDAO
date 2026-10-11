@@ -14,6 +14,7 @@ public class UserService {
     private UserDAO userDAO;
 
     public User create(User user) {
+        checkDuplicidade(user);
         return userDAO.create(user);
     }
 
@@ -22,6 +23,7 @@ public class UserService {
     }
 
     public User update(User user) {
+        checkDuplicidade(user);
         return userDAO.update(user);
     }
 
@@ -39,5 +41,19 @@ public class UserService {
         }
 
         return userDAO.possuiAchievements(userId);
+    }
+
+    private void checkDuplicidade(User user) {
+        if (userDAO.checkEmailDuplicado(user.getEmail(), user.getId())) {
+            throw new IllegalArgumentException(
+                    "Já existe um usuário com este e-mail."
+            );
+        }
+
+        if (userDAO.checkApelidoDuplicado(user.getApelido(), user.getId())) {
+            throw new IllegalArgumentException(
+                    "Já existe um usuário com este apelido."
+            );
+        }
     }
 }

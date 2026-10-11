@@ -1,9 +1,9 @@
 package com.fabioperettig.controller;
 
-
 import com.fabioperettig.domain.User;
 import com.fabioperettig.service.UserService;
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJBException;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
@@ -14,12 +14,16 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Named("userController")
 @ViewScoped
 public class UserController implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = Logger.getLogger(UserController.class.getName());
 
     @Inject
     private UserService userService;
@@ -43,7 +47,13 @@ public class UserController implements Serializable {
 
     public void create() {
 
+        try {
         userService.create(user);
+        } catch (EJBException e) {
+            erroSave(e);
+            return;
+        }
+
         iniciarUsers();
 
         showMessage(FacesMessage.SEVERITY_INFO, "Usuário cadastrado.");
@@ -66,7 +76,12 @@ public class UserController implements Serializable {
             return;
         }
 
-        userService.update(user);
+        try {
+            userService.update(user);
+        } catch (EJBException e) {
+            erroSave(e);
+            return;
+        }
         iniciarUsers();
 
         showMessage(FacesMessage.SEVERITY_INFO, "Usuário atualizado.");
@@ -77,7 +92,17 @@ public class UserController implements Serializable {
     }
 
     private void deleteUser(User user) {
-        userService.delete(user);
+        try {
+            userService.delete(user);
+        } catch (EJBException e) {
+            LOGGER.log(Level.SEVERE, "Erro ao excluir usuário.", e);
+
+            showMessage(
+                    FacesMessage.SEVERITY_ERROR,
+                    "Não foi possível excluir o usuário."
+            );
+            return;
+        }
 
         userToDelete = null;
         iniciarUsers();
@@ -135,5 +160,17 @@ public class UserController implements Serializable {
 
     public void cancelDelete() {
         userToDelete = null;
+    }
+
+    private void erroSave(EJBException exception) {
+        Throwable exceptionCause = exception.getCause();
+
+        if (exceptionCause instanceof IllegalArgumentException) {
+            showMessage(FacesMessage.SEVERITY_WARN, exceptionCause.getMessage());
+            return;
+        }
+
+        LOGGER.log(Level.SEVERE, "Erro ao salvar usuário.", exception);
+        showMessage(FacesMessage.SEVERITY_ERROR,"Não foi possível salvar o usuário.");
     }
 }

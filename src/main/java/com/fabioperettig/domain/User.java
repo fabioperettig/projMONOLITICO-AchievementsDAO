@@ -1,6 +1,8 @@
 package com.fabioperettig.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,12 +27,15 @@ public class User implements Persistence, Serializable {
     @Setter(AccessLevel.NONE)
     private Long id;
 
+    @NotBlank(message = "Digite seu apelido.")
     @Column(name = "USUARIO", nullable = false, unique = true)
     private String apelido;
 
     @Column(name = "NIVEL", nullable = false)
     private Integer nivel = 1;
 
+    @NotBlank(message = "Digite seu email.")
+    @Email(message = "Informe um email válido.")
     @Column(name = "EMAIL", nullable = false, unique = true)
     private String email;
 

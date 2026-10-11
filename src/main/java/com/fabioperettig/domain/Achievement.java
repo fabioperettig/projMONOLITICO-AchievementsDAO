@@ -2,6 +2,7 @@ package com.fabioperettig.domain;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,9 +26,11 @@ public class Achievement implements Persistence, Serializable {
     @Setter(AccessLevel.NONE)
     private Long id;
 
+    @NotBlank(message = "Digite o título da conquista.")
     @Column(name = "TITULO", nullable = false)
     private String titulo;
 
+    @NotBlank(message = "Digite a descrição da conquista.")
     @Column(name = "DESCRICAO", nullable = false)
     private String descricao;
 

@@ -48,7 +48,7 @@ main
 ````
 </details>
 
-## Docker 🐳
+## 🐳 Docker
 
 Tanto o `PostgreSQL` quanto o `Wildfly` foram contruidos em containers de [compose.yaml](compose.yaml), com dados
 implementados em variáveis de ambiente com `.env`.
@@ -100,7 +100,7 @@ volumes:
   postgres_data:
 ```
 
-## Entidade
+## 👤 Entidades
 
 As entidades foram implementadas em ***Java Persistence API***, implementando contrato `Persistence` para garantir o
 método getId() e contrato `Serializable` para o uso de aplicação Web Wildfly.
@@ -139,14 +139,14 @@ public class User implements Persistence, Serializable {
 
 </details>
 
-## DAO com Windfly 
+## ⚙️ DAO com Windfly 
 
 Agora com o uso do WildFly o gerenciamento da camada DAO sofrerá mudanças em comparação com JPA convencional. O Wildfly
 assume o controle do **ciclo de vida do JPA** de forma automática, não sendo mais necessário o uso explícito de `begin()`,
 `commit()` e nem de `close()` do EntityManager.
 
-Essa automatização ocorre atráves da anotação `@PersistenceContext` que recebe a *unitName* e faz a injeção de dependência
-do EntityManagerFactory.
+Essa automatização ocorre atráves da anotação `@PersistenceContext` que recebe a *unitName* e faz a injeção de 
+ependência do EntityManager.
 
 ```java
 import com.fabioperettig.domain.Persistence;
@@ -210,7 +210,7 @@ public abstract class GenericDAO<T extends Persistence> implements IGenericDAO<T
 }
 ```
 
-## Interface Web com JSF 🖥️
+## 🖥️ Interface Web com JSF
 
 Com a JSF, os métodos CRUD das entidades ganham uma uma interatividade mais amigável estilo `frontend` com páginas
 XHTML que acessam os controllers por expressões como `#{userController.create}`.
@@ -348,7 +348,34 @@ XHTML que acessam os controllers por expressões como `#{userController.create}`
 > uma confirmação antes de excluir, pois excluir o usuário também acarreta na exclusão de todos os achievements
 > atrelados.
 
-## ------- Projeto em construção 🚧 -------
+## 🚀 Build e Deploy 
+
+Enquanto o `Maven` compila e cria o package em um `.war`, o `Docker-Compose` prepara os containers de PostgreSQL e
+WildFly, facilitando a reprodução do ambiente sem instalar esses serviços na máquina local.
+
+| Ferramenta | Responsabilidade |
+|---|---|
+| Maven | Compilar o código e gerar o pacote da aplicação |
+| Docker Compose | Configurar e administrar os serviços do projeto, como PostgreSQL e WildFly |
+
+### Comandos para build e deploy do projeto
+
+```bash
+mvn clean package
+```
+Executa o Maven, remove build anteriores e contrói a nova compilação `target/conquistas.war`, sendo 'conquistas' o nome
+usado neste projeto em específico;
+
+```bash
+docker compose cp target/conquistas.war wildfly:/tmp/conquistas.war
+```
+
+Administra os serviços definidos no [compose.yaml](compose.yaml), criando uma cópia do arquivo para a etapa seguinte;
+
+```bash
+docker compose exec wildfly /opt/jboss/wildfly/bin/jboss-cli.sh --connect --command="deploy /tmp/conquistas.war --force"
+```
+Inicia a instalação via `WildFly` e faz o `Deploy` da aplicação.
 
 -----
 

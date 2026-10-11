@@ -5,6 +5,7 @@ import com.fabioperettig.domain.User;
 import com.fabioperettig.service.AchievementService;
 import com.fabioperettig.service.UserService;
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.EJBException;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
@@ -16,12 +17,16 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Named("achievementController")
 @ViewScoped
 public class AchievementController implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = Logger.getLogger(AchievementController.class.getName());
 
     @Inject
     private AchievementService achievementService;
@@ -48,7 +53,13 @@ public class AchievementController implements Serializable {
     ///Metodos CRUD
 
     public void create() {
-        achievementService.create(achievement);
+        try {
+            achievementService.create(achievement);
+        } catch (EJBException e) {
+            erroSave(e, "Não foi possível cadastrar a conquista.");
+            return;
+        }
+
         iniciarAchievements();
 
         showMessage(FacesMessage.SEVERITY_INFO, "Conquista cadastrada.");
@@ -78,7 +89,13 @@ public class AchievementController implements Serializable {
             return;
         }
 
-        achievementService.update(achievement);
+        try {
+            achievementService.update(achievement);
+        } catch (EJBException e) {
+            erroSave(e, "Não foi possível atualizar a conquista.");
+            return;
+        }
+
         iniciarAchievements();
 
         showMessage(FacesMessage.SEVERITY_INFO, "Conquista atualizada.");
@@ -89,7 +106,12 @@ public class AchievementController implements Serializable {
     }
 
     public void delete(Achievement achievementDelete) {
-        achievementService.delete(achievementDelete);
+        try {
+            achievementService.delete(achievementDelete);
+        } catch (EJBException e) {
+            erroSave(e, "Não foi possível excluir a conquista.");
+            return;
+        }
         iniciarAchievements();
 
         showMessage(FacesMessage.SEVERITY_INFO, "Conquista excluída.");
@@ -120,5 +142,17 @@ public class AchievementController implements Serializable {
         achievement.setPrivado(false);
 
         return achievement;
+    }
+
+    private void erroSave(EJBException exception, String mensagem) {
+        Throwable exceptionCause = exception.getCause();
+
+        if (exceptionCause instanceof IllegalArgumentException) {
+            showMessage(FacesMessage.SEVERITY_WARN, exceptionCause.getMessage());
+            return;
+        }
+
+        LOGGER.log(Level.SEVERE, mensagem, exception);
+        showMessage(FacesMessage.SEVERITY_ERROR,mensagem);
     }
 }
