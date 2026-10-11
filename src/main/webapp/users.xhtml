@@ -2,105 +2,98 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
+      xmlns:p="primefaces"
       lang="pt-BR">
 
 <h:head>
     <title>Cadastro de usuários</title>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 </h:head>
 
 <h:body>
     <h1>Usuários</h1>
-    <h:link outcome="achievements" value="Ir para conquistas"/>
-    <h:messages id="messages"/>
+    <p:button outcome="achievements" value="Conquistas" icon="pi pi-trophy"/>
+    <p:messages id="messages" showDetail="false" closable="true"/>
 
     <!-- FORMULÁRIO -->
     <h:form id="userForm">
-        <h:panelGrid columns="2">
+        <p:panel header="#{userController.editing ? 'Editar usuário' : 'Cadastrar usuário'}">
+            <p:panelGrid columns="2" layout="tabular">
 
-            <h:outputLabel for="apelido" value="Apelido:"/>
-            <h:inputText id="apelido"
-                         label="Apelido"
-                         value="#{userController.user.apelido}"
-                         required="true"
-                         requiredMessage="Informe o apelido."/>
+                <p:outputLabel for="apelido" value="Apelido:"/>
+                <p:inputText id="apelido"
+                             label="Apelido"
+                             value="#{userController.user.apelido}"
+                             required="true"
+                             requiredMessage="Informe o apelido."/>
 
-            <h:outputLabel for="email" value="E-mail:"/>
-            <h:inputText id="email"
-                         label="E-mail"
-                         value="#{userController.user.email}"
-                         required="true"
-                         requiredMessage="Informe o e-mail."/>
+                <p:outputLabel for="email" value="E-mail:"/>
+                <p:inputText id="email"
+                             label="E-mail"
+                             value="#{userController.user.email}"
+                             required="true"
+                             requiredMessage="Informe o e-mail."/>
 
-        </h:panelGrid>
+            </p:panelGrid>
+            <p:divider/>
 
-        <h:commandButton value="Cadastrar"
-                         action="#{userController.create}"
-                         rendered="#{not userController.editing}"/>
+            <p:commandButton value="Cadastrar" icon="pi pi-plus"
+                             action="#{userController.create}"
+                             rendered="#{not userController.editing}" ajax="false"/>
 
-        <h:commandButton value="Salvar alteração"
-                         action="#{userController.update}"
-                         rendered="#{userController.editing}"/>
+            <p:commandButton value="Salvar alteração" icon="pi pi-check"
+                             action="#{userController.update}"
+                             rendered="#{userController.editing}" ajax="false"/>
 
-        <h:commandButton value="Cancelar"
-                         action="#{userController.cancel}">
-            <f:ajax execute="@this"
-                    render="@form :messages"
-                    resetValues="true"/>
-        </h:commandButton>
+            <p:commandButton value="Cancelar" icon="pi pi-times" styleClass="ui-button-secondary"
+                             action="#{userController.cancel}" process="@this" update="@form :messages" resetValues="true"/>
+        </p:panel>
     </h:form>
 
     <h2>Usuários cadastrados</h2>
 
     <!-- PAINEL PRINCIPAL -->
     <h:form id="usersTableForm">
-        <h:dataTable value="#{userController.users}"
+        <p:dataTable value="#{userController.users}"
                      var="item"
-                     border="1">
+                     paginator="true" rows="10"
+                     paginatorPosition="bottom" paginatorAlwaysVisible="false"
+                     reflow="true"
+                     emptyMessage="Nenhum usuário cadastrado.">
 
-            <h:column>
-                <f:facet name="header">ID</f:facet>
+            <p:column headerText="ID">
                 <h:outputText value="#{item.id}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Apelido</f:facet>
+            <p:column headerText="Apelido">
                 <h:outputText value="#{item.apelido}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">E-mail</f:facet>
+            <p:column headerText="E-mail">
                 <h:outputText value="#{item.email}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Nível</f:facet>
-                <h:outputText value="#{item.nivel}"/>
-            </h:column>
+            <p:column headerText="Nível">
+                <p:tag value="Nível #{item.nivel}" severity="success"/>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Ações</f:facet>
+            <p:column headerText="Ações">
 
-                <h:commandButton value="Editar"
-                                 action="#{userController.edit(item)}">
-                    <f:ajax execute="@this"
-                            render=":userForm :messages"
-                            resetValues="true"/>
-                </h:commandButton>
+                <p:commandButton value="Editar" icon="pi pi-pencil" styleClass="ui-button-secondary"
+                                 action="#{userController.edit(item)}" process="@this" update=":userForm :messages" resetValues="true"/>
 
-                <h:commandButton value="Excluir"
-                                 action="#{userController.prepareDelete(item)}"/>
-            </h:column>
+                <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger"
+                                 action="#{userController.prepareDelete(item)}" ajax="false"/>
+            </p:column>
 
-        </h:dataTable>
+        </p:dataTable>
     </h:form>
 
     <!-- CONQUISTAS ENCONTRADAS NO DELETE -->
     <h:form id="deleteConfirmationForm">
-        <h:panelGroup layout="block"
-                      rendered="#{not empty userController.userToDelete}">
-
-            <h3>Confirmar exclusão</h3>
+        <p:panel header="Confirmar exclusão"
+                 rendered="#{not empty userController.userToDelete}">
 
             <p>
                 Excluir
@@ -109,13 +102,13 @@
                 Deseja continuar?
             </p>
 
-            <h:commandButton value="Confirmar exclusão"
-                             action="#{userController.confirmDelete}"/>
+            <p:commandButton value="Confirmar exclusão" icon="pi pi-trash" styleClass="ui-button-danger"
+                             action="#{userController.confirmDelete}" ajax="false"/>
 
-            <h:commandButton value="Cancelar"
-                             action="#{userController.cancelDelete}"/>
+            <p:commandButton value="Cancelar" icon="pi pi-times" styleClass="ui-button-secondary"
+                             action="#{userController.cancelDelete}" ajax="false"/>
 
-        </h:panelGroup>
+        </p:panel>
     </h:form>
 </h:body>
 

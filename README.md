@@ -348,6 +348,16 @@ XHTML que acessam os controllers por expressões como `#{userController.create}`
 > uma confirmação antes de excluir, pois excluir o usuário também acarreta na exclusão de todos os achievements
 > atrelados.
 
+### 🎨 PrimeFaces e tema
+
+Para deixar as telas de usuários e conquistas mais organizadas, usei o `PrimeFaces 16.0.0` junto do JSF,
+com componentes prontos para formulários, botões, calendário e tabelas com paginação.
+
+O tema escolhido foi o `aura-dark-emerald`, com visual escuro e detalhes em verde. As dependências
+`primefaces` e `primefaces-themes` ficam no [pom.xml](pom.xml), e o tema é selecionado pelo parâmetro
+`primefaces.THEME` no [web.xml](src/main/webapp/WEB-INF/web.xml). Não foi necessário criar CSS próprio:
+a aparência vem do tema e dos componentes do PrimeFaces.
+
 ## 🚀 Build e Deploy 
 
 Enquanto o `Maven` compila e cria o package em um `.war`, o `Docker-Compose` prepara os containers de PostgreSQL e

@@ -2,144 +2,138 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core"
-      xmlns:p="jakarta.faces.passthrough"
+      xmlns:p="primefaces"
       lang="pt-BR">
 
 <h:head>
     <title>Cadastro de conquistas</title>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 </h:head>
 
 <h:body>
     <h1>Conquistas</h1>
-    <h:link outcome="users" value="Ir para usuários"/>
+    <p:button outcome="users" value="Usuários" icon="pi pi-users"/>
 
-    <h:messages id="messages"/>
+    <p:messages id="messages" showDetail="false" closable="true"/>
 
     <!-- FORMULÁRIO -->
     <h:form id="achievementForm">
-        <h:panelGrid columns="2">
+        <p:panel header="#{achievementController.editing ? 'Editar conquista' : 'Registrar conquista'}">
+            <p:panelGrid columns="2" layout="tabular">
 
-            <h:outputLabel for="titulo" value="Título:"/>
-            <h:inputText id="titulo"
-                         value="#{achievementController.achievement.titulo}"
-                         required="true"
-                         requiredMessage="Informe o título."/>
-
-            <h:outputLabel for="descricao" value="Descrição:"/>
-            <h:inputTextarea id="descricao"
-                             value="#{achievementController.achievement.descricao}"
-                             rows="4"
-                             cols="40"
+                <p:outputLabel for="titulo" value="Título:"/>
+                <p:inputText id="titulo"
+                             value="#{achievementController.achievement.titulo}"
                              required="true"
-                             requiredMessage="Informe a descrição."/>
+                             requiredMessage="Informe o título."/>
 
-            <h:outputLabel for="dataConquista" value="Data:"/>
-            <h:inputText id="dataConquista"
-                         p:type="date"
-                         value="#{achievementController.achievement.dataConquista}"
-                         required="true"
-                         requiredMessage="Informe a data."
-                         converterMessage="Informe uma data válida.">
-                <f:convertDateTime type="localDate"
-                                   pattern="yyyy-MM-dd"/>
-            </h:inputText>
+                <p:outputLabel for="descricao" value="Descrição:"/>
+                <p:inputTextarea id="descricao"
+                                 value="#{achievementController.achievement.descricao}"
+                                 rows="4"
+                                 cols="40"
+                                 autoResize="false"
+                                 required="true"
+                                 requiredMessage="Informe a descrição."/>
 
-            <h:outputLabel for="usuario" value="Usuário:"/>
-            <h:selectOneMenu id="usuario"
-                             value="#{achievementController.achievement.user}"
-                             converter="userConverter"
-                             required="true"
-                             requiredMessage="Selecione um usuário.">
+                <p:outputLabel for="dataConquista" value="Data:"/>
+                <p:datePicker id="dataConquista"
+                              value="#{achievementController.achievement.dataConquista}"
+                              pattern="dd/MM/yyyy"
+                              locale="pt_BR"
+                              showIcon="true"
+                              required="true"
+                              requiredMessage="Informe a data."
+                              converterMessage="Informe uma data válida."/>
 
-                <f:selectItem itemLabel="Selecione..."
-                              itemValue="#{null}"
-                              noSelectionOption="true"/>
+                <p:outputLabel for="usuario" value="Usuário:"/>
+                <p:selectOneMenu id="usuario"
+                                 value="#{achievementController.achievement.user}"
+                                 converter="userConverter"
+                                 required="true"
+                                 requiredMessage="Selecione um usuário.">
 
-                <f:selectItems value="#{achievementController.users}"
-                               var="usuario"
-                               itemLabel="#{usuario.apelido}"
-                               itemValue="#{usuario}"/>
-            </h:selectOneMenu>
+                    <f:selectItem itemLabel="Selecione..."
+                                  itemValue="#{null}"
+                                  noSelectionOption="true"/>
 
-            <h:outputLabel for="privado" value="Privada:"/>
-            <h:selectBooleanCheckbox id="privado"
-                                     value="#{achievementController.achievement.privado}"/>
+                    <f:selectItems value="#{achievementController.users}"
+                                   var="usuario"
+                                   itemLabel="#{usuario.apelido}"
+                                   itemValue="#{usuario}"/>
+                </p:selectOneMenu>
 
-        </h:panelGrid>
+                <p:outputLabel for="privado" value="Privada:"/>
+                <p:selectBooleanCheckbox id="privado"
+                                         value="#{achievementController.achievement.privado}"/>
 
-        <h:commandButton value="Cadastrar"
-                         action="#{achievementController.create}"
-                         rendered="#{not achievementController.editing}"/>
+            </p:panelGrid>
+            <p:divider/>
 
-        <h:commandButton value="Salvar alteração"
-                         action="#{achievementController.update}"
-                         rendered="#{achievementController.editing}"/>
+            <p:commandButton value="Cadastrar" icon="pi pi-plus"
+                             action="#{achievementController.create}"
+                             rendered="#{not achievementController.editing}"
+                             ajax="false"/>
 
-        <h:commandButton value="Cancelar"
-                         action="#{achievementController.cancel}">
-            <f:ajax execute="@this"
-                    render="@form :messages"
-                    resetValues="true"/>
-        </h:commandButton>
+            <p:commandButton value="Salvar alteração" icon="pi pi-check"
+                             action="#{achievementController.update}"
+                             rendered="#{achievementController.editing}" ajax="false"/>
+
+            <p:commandButton value="Cancelar" icon="pi pi-times" styleClass="ui-button-secondary"
+                             action="#{achievementController.cancel}" process="@this" update="@form :messages" resetValues="true"/>
+        </p:panel>
     </h:form>
 
     <h2>Conquistas cadastradas</h2>
 
     <!-- TABELA -->
     <h:form id="achievementsTableForm">
-        <h:dataTable value="#{achievementController.achievements}"
+        <p:dataTable value="#{achievementController.achievements}"
                      var="item"
-                     border="1">
+                     paginator="true" rows="10"
+                     paginatorPosition="bottom" paginatorAlwaysVisible="false"
+                     reflow="true"
+                     emptyMessage="Nenhuma conquista cadastrada.">
 
-            <h:column>
-                <f:facet name="header">ID</f:facet>
+            <p:column headerText="ID">
                 <h:outputText value="#{item.id}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Título</f:facet>
+            <p:column headerText="Título">
                 <h:outputText value="#{item.titulo}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Descrição</f:facet>
+            <p:column headerText="Descrição">
                 <h:outputText value="#{item.descricao}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Data</f:facet>
+            <p:column headerText="Data">
                 <h:outputText value="#{item.dataConquista}">
                     <f:convertDateTime type="localDate"
                                        pattern="dd/MM/yyyy"/>
                 </h:outputText>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Usuário</f:facet>
+            <p:column headerText="Usuário">
                 <h:outputText value="#{item.user.apelido}"/>
-            </h:column>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Privada</f:facet>
-                <h:outputText value="#{item.privado ? 'Sim' : 'Não'}"/>
-            </h:column>
+            <p:column headerText="Visibilidade">
+                <p:tag value="#{item.privado ? 'Privada' : 'Pública'}"
+                       severity="#{item.privado ? 'warning' : 'success'}"/>
+            </p:column>
 
-            <h:column>
-                <f:facet name="header">Ações</f:facet>
+            <p:column headerText="Ações">
 
-                <h:commandButton value="Editar"
-                                 action="#{achievementController.edit(item)}">
-                    <f:ajax execute="@this"
-                            render=":achievementForm :messages"
-                            resetValues="true"/>
-                </h:commandButton>
+                <p:commandButton value="Editar" icon="pi pi-pencil" styleClass="ui-button-secondary"
+                                 action="#{achievementController.edit(item)}" process="@this" update=":achievementForm :messages" resetValues="true"/>
 
-                <h:commandButton value="Excluir"
-                                 action="#{achievementController.delete(item)}"/>
-            </h:column>
+                <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="ui-button-danger"
+                                 action="#{achievementController.delete(item)}" ajax="false"/>
+            </p:column>
 
-        </h:dataTable>
+        </p:dataTable>
     </h:form>
 </h:body>
 
