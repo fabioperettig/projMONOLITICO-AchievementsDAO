@@ -585,8 +585,15 @@ public class UserServicesIT {
 
 ## 📖 Projeto Guia
 
-Segui o projeto disponibilizado no módulo 38 como base, contruindo a mesma estrutura e distribuição de responsabilidades
-do projeto. Mas, também procurei tomar decisões diferentes que agregasse nos estudos e tornasse o projeto mais pessoal.
+Como o professor deixou livre para criar o próprio sistema (desde que seguisse os ensinamentos do módulo), construí este
+projeto como rascunho de uma ideia que pretendo implementar oficialmente no futuro. Mas, também, segui o projeto
+disponibilizado no módulo 38. Usando como base durante toda a implementação, (a mesma estrutura e distribuição de
+responsabilidades), mas também procurei tomando decisões diferentes e tentando dar sempre mais um passo que agregasse
+nos aprendizado.
 
 > Repositório oficial do projeto usado de base:
 > https://github.com/digaomilleniun/backend-java-ebac/tree/main/mod38/VendasOnline
+
+------
+
+**Fabio Peretti Guimarães | tarefa Ebac mod 38 | OUT 2026**
